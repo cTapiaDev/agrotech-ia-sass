@@ -1,0 +1,25 @@
+{
+    "name": "agronomy-app",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "dev": "tailwindcss -i ./static/src/input.css -o ./static/css/output.css --watch",
+        "build": "tailwindcss -i ./static/src/input.css -o ./static/css/output.css --minify"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devEngines": {
+        "packageManager": {
+            "name": "pnpm",
+            "version": "^11.13.1",
+            "onFail": "download"
+        }
+    },
+    "type": "module",
+    "devDependencies": {
+        "@tailwindcss/cli": "^4.3.3",
+        "tailwindcss": "^4.3.3"
+    }
+}

@@ -1,0 +1,65 @@
+{% load static %}
+<!doctype html>
+<html lang="es-cl">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Agrotech - Gestión de Cultivos</title>
+        <link rel="stylesheet" href="{% static 'css/output.css' %}" />
+    </head>
+    <body
+        class="bg-[#f8fafc] text-slate-800 font-sans antialiased selection:bg-emerald-200 selection:text-emerald-900 min-h-screen relative overflow-x-hidden"
+    >
+        <div
+            class="absolute top-0 left-0 w-full h-96 bg-linear-to-b from-emerald-50/80 to-transparent -z-10"
+        ></div>
+        <div
+            class="absolute top-[-10%] right-[-5%] w-125 h-125 rounded-full bg-emerald-300/20 blur-[80px] -z-10"
+        ></div>
+
+        <nav
+            class="fixed top-6 inset-x-4 md:inset-x-8 lg:inset-x-auto lg:w-full lg:max-w-5xl lg:left-1/2 lg:-translate-x-1/2 z-50 bg-white/70 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-full px-6 py-3 flex justify-between items-center transition-all"
+        >
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 rounded-full bg-linear-to-br from-emerald-400 to-teal-600 flex items-center justify-center shadow-inner"
+                >
+                    <svg
+                        class="w-5 h-5 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2.5"
+                            d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+                        ></path>
+                    </svg>
+                </div>
+                <span class="text-slate-900 text-lg font-extrabold tracking-tight"
+                    >Agrotech<span class="text-emerald-600 font-medium">Hub</span></span
+                >
+            </div>
+            <div class="flex gap-1 bg-slate-100/50 p-1 rounded-full border border-slate-200/60">
+                <a
+                    href="{% url 'farmfield_list' %}"
+                    class="px-5 py-2 rounded-full text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-white hover:shadow-sm transition-all"
+                    >Campos</a
+                >
+                <a
+                    href="{% url 'crop_list' %}"
+                    class="px-5 py-2 rounded-full text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-white hover:shadow-sm transition-all"
+                    >Cultivos</a
+                >
+            </div>
+        </nav>
+
+        <main
+            class="pt-32 pb-16 px-4 md:px-8 lg:px-24 max-w-7xl mx-auto min-h-[85vh] flex flex-col"
+        >
+            {% block content %}{% endblock %}
+        </main>
+    </body>
+</html>

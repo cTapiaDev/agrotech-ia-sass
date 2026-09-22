@@ -1,0 +1,51 @@
+{% extends 'base.html' %} {% block content %}
+<div class="grow flex items-center justify-center">
+    <div
+        class="max-w-md w-full bg-white p-10 rounded-[2.5rem] shadow-[0_20px_50px_rgb(225,29,72,0.08)] border border-rose-50 text-center relative overflow-hidden"
+    >
+        <div
+            class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-rose-500/20 rounded-full blur-2xl pointer-events-none"
+        ></div>
+
+        <div class="relative z-10 flex flex-col items-center">
+            <div
+                class="w-20 h-20 bg-rose-50 border border-rose-100 rounded-full flex items-center justify-center mb-6 text-rose-500"
+            >
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.5"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    ></path>
+                </svg>
+            </div>
+
+            <h1 class="text-3xl font-extrabold text-slate-900 mb-3 tracking-tight">
+                ¿Estás seguro?
+            </h1>
+            <p class="text-slate-500 font-medium mb-10 leading-relaxed">
+                Se deshabilitará el campo
+                <span class="font-bold text-slate-800">"{{ object.name }}"</span>. Sus logs
+                climáticos seguirán existiendo en Redis, pero ya no operará en el sistema.
+            </p>
+
+            <form method="post" class="w-full flex flex-col gap-3">
+                {% csrf_token %}
+                <button
+                    type="submit"
+                    class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-4 px-6 rounded-2xl shadow-[0_8px_20px_rgb(225,29,72,0.25)] hover:shadow-[0_12px_25px_rgb(225,29,72,0.35)] transition-all duration-300"
+                >
+                    Deshabilitar Entidad
+                </button>
+                <a
+                    href="{% url 'farmfield_list' %}"
+                    class="w-full bg-slate-50 hover:bg-slate-100 text-slate-600 font-bold py-4 px-6 rounded-2xl transition-all duration-300"
+                >
+                    Mantener Activo
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from .models import FarmField, Crop
 from .mixins import ProducerRequiredMixin
-from .tasks import sync_field_weather
+from .tasks import sync_field_weather, analyze_crop_with_ai
 from .forms import FarmFieldForm, CropForm
 
 class FarmFieldListView(LoginRequiredMixin, ListView):
@@ -60,6 +60,11 @@ class CropCreateView(ProducerRequiredMixin, CreateView):
     template_name = 'agronomy/crop_from.html'
     form_class = CropForm
     success_url = reverse_lazy('crop_list')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        analyze_crop_with_ai.delay(self.object.pk)
+        return response
 
 class CropUpdateView(ProducerRequiredMixin, UpdateView):
     model = Crop

@@ -61,5 +61,50 @@
         >
             {% block content %}{% endblock %}
         </main>
+
+        <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-4"></div>
+
+        <script>
+            const connectWebSocket = () => {
+                const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+                const ws = new WebSocket(`${protocol}${window.location.host}/ws/notifications/`);
+                let pingInterval;
+
+                ws.onopen = () => {
+                    pingInterval = setInterval(() => {
+                        if (ws.readyState === WebSocket.OPEN) {
+                            ws.send(JSON.stringify({ type: 'ping' }));
+                        }
+                    }, 20000);
+                };
+
+                ws.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'pong') return;
+
+                    const aiData = data.message;
+                    if (!aiData) return;
+
+                    const toast = document.createElement('div');
+                    toast.className =
+                        'bg-slate-900 border border-emerald-500/30 rounded-2xl p-5 w-80';
+
+                    toast.innerHTML = `
+                        <h4>${aiData.crop_name}</h4>
+                        <p>${aiData.ai_recommendation}</p<
+                    `;
+
+                    document.getElementById('toast-container').appendChild(toast);
+                };
+
+                ws.onclose = () => {
+                    clearInterval(pingInterval);
+                    console.warn('WebSocket desconectado...');
+                    setTimeout(connectWebSocket, 3000);
+                };
+            };
+
+            connectWebSocket();
+        </script>
     </body>
 </html>

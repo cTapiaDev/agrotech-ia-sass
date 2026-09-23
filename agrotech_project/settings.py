@@ -14,13 +14,18 @@ DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = []
 
+GEMINI_API_KEY = env('GEMINI_API_KEY', default='')
+GROQ_API_KEY = env('GROQ_API_KEY', default='')
+
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
     'agronomy'
 ]
 
@@ -51,7 +56,16 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'agrotech_project.wsgi.application'
+ASGI_APPLICATION = 'agrotech_project.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [env('CELERY_BROKER_URL', default='redis://localhost:6379/0')],
+        },
+    },
+}
 
 DATABASES = {
     'default': env.db('DATABASE_URL')

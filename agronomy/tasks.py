@@ -87,7 +87,7 @@ def analyze_crop_with_ai(crop_id):
 
         prompt = f"""
         Analiza el siguiente cultivo y devuelve estrictamente un objecto JSON con esta estructura:
-        {{"crop_name": "string", "risk_level": "Alto/Medio/Bajo", "water_requirements": "string", "ai_recommendation: "string"}}
+        {{"crop_name": "string", "risk_level": "Alto/Medio/Bajo", "water_requirements": "string", "ai_recommendation": "string"}}
 
         Datos:
         Cultivos: {crop.name} ({crop.get_crop_type_display()})

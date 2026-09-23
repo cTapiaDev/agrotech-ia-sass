@@ -87,14 +87,30 @@
 
                     const toast = document.createElement('div');
                     toast.className =
-                        'bg-slate-900 border border-emerald-500/30 rounded-2xl p-5 w-80';
+                        'bg-slate-900 border border-emerald-500/30 shadow-[0_10px_30px_rgb(0,0,0,0.2)] rounded-2xl p-5 w-80 transform transition-all duration-300 translate-y-10 opacity-0 relative';
 
                     toast.innerHTML = `
-                        <h4>${aiData.crop_name}</h4>
-                        <p>${aiData.ai_recommendation}</p<
+                        <button class="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors cursor-pointer" onclick="(e => e.target.closest('div.relative').remove())(event)">
+                            <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                        <div class="flex items-center gap-3 mb-2 pr-6">
+                            <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            </div>
+                            <h4 class="text-white font-bold text-sm tracking-wide">Reporte IA: ${aiData.crop_name}</h4>
+                        </div>
+                        <p class="text-slate-300 text-xs leading-relaxed mb-3">${aiData.ai_recommendation}</p>
+                        <div class="flex justify-between items-center bg-slate-800/50 rounded-lg p-2">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">Riesgo</span>
+                            <span class="text-xs font-bold ${aiData.risk_level === 'Alto' ? 'text-rose-400' : 'text-emerald-400'}">${aiData.risk_level}</span>
+                        </div>
                     `;
 
                     document.getElementById('toast-container').appendChild(toast);
+
+                    setTimeout(() => {
+                        toast.classList.remove('translate-y-10', 'opacity-0');
+                    }, 50);
                 };
 
                 ws.onclose = () => {

@@ -1,0 +1,49 @@
+{% extends "admin/base_site.html" %} {% block content %}
+<div id="content-main">
+    <div class="module">
+        <h2>Últimos Análisis de IA (Groq/Gemini)</h2>
+        <table style="width: 100%; text-align: left; border-collapse: collapse">
+            <tr style="color: #f8f8f8">
+                <th style="padding: 8px">Cultivo ID</th>
+                <th style="padding: 8px">Motor</th>
+                <th style="padding: 8px">Respuesta JSON</th>
+                <th style="padding: 8px">Fecha</th>
+            </tr>
+            {% for log in ai_logs %}
+            <tr style="border-bottom: 1px solid #ddd">
+                <th style="padding: 8px">{{ log.crop_id }}</th>
+                <th style="padding: 8px">{{ log.engine_used }}</th>
+                <th style="padding: 8px"><code>{{ log.raw_response }}</code></th>
+                <th style="padding: 8px">{{ log.created_at }}</th>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" style="padding: 8px">No hay registros de IA.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <br />
+
+    <div class="module">
+        <h2>Últimas Lecturas Climáticas (Open-Meteo)</h2>
+        <table style="width: 100%; text-align: left; border-collapse: collapse">
+            <tr style="color: #f8f8f8">
+                <th style="padding: 8px">Parcela ID</th>
+                <th style="padding: 8px">Temperatura</th>
+                <th style="padding: 8px">Viento</th>
+                <th style="padding: 8px">Fecha</th>
+            </tr>
+            {% for log in weather_logs %}
+            <tr style="border-bottom: 1px solid #ddd">
+                <th style="padding: 8px">{{ log.farm_field_id }}</th>
+                <th style="padding: 8px">{{ log.temperature }}</th>
+                <th style="padding: 8px">{{ log.wind_speed }}</th>
+                <th style="padding: 8px">{{ log.created_at }}</th>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}

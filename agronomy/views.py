@@ -2,10 +2,12 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
+from rest_framework import viewsets
 from .models import FarmField, Crop
 from .mixins import ProducerRequiredMixin
 from .tasks import sync_field_weather, analyze_crop_with_ai
 from .forms import FarmFieldForm, CropForm
+from .serializers import CropSerializer
 
 class FarmFieldListView(LoginRequiredMixin, ListView):
     model = FarmField
@@ -82,3 +84,11 @@ class CropDeleteView(ProducerRequiredMixin, DeleteView):
         self.object.is_active = False
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
+
+class CropViewSet(viewsets.ModelViewSet):
+    queryset = Crop.objects.all().order_by('-id')
+    serializer_class = CropSerializer
+
+    def perform_create(self, serializer):
+        crop = serializer.save()
+        analyze_crop_with_ai.delay(crop.id)

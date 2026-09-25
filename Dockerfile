@@ -14,4 +14,4 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 
 COPY . /app/
 
-EXPOSE 8001
+EXPOSE 8000

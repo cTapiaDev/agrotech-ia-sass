@@ -41,7 +41,7 @@ class AgronomyTasksTestCase(TestCase):
         mock_fetch.assert_called_once_with(self.field.location_lat, self.field.location_lng)
 
     @patch('agronomy.tasks.get_channel_layer')
-    @patch('agronomy.tasks.OpenAI')
+    @patch('agronomy.tasks.Groq')
     def test_analyze_crop_with_ai_success(self, mock_openai, mock_channel_layer):
         mock_openai_instance = MagicMock()
         mock_openai.return_value = mock_openai_instance

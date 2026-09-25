@@ -28,11 +28,11 @@ services:
     web:
         build: .
         # daphne -b 0.0.0.0 -p 8000 agrotech_project.asgi:application
-        command: python manage.py runserver 0.0.0.0:8001
+        command: python manage.py runserver 0.0.0.0:8000
         volumes:
             - .:/app
         ports:
-            - '8001:8001'
+            - '8003:8000'
         environment:
             - DATABASE_URL=postgres://agrotech_user:agrotech_password@db:5432/agrotech_db
             - CELERY_BROKER_URL=redis://redis:6379/0

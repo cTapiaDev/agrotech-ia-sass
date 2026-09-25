@@ -62,3 +62,9 @@ class WeatherLog(models.Model):
 
     def __str__(self):
         return f"Clima {self.farm_field.name} - {self.recorded_at.strftime('%Y-%m-%d %H:%M')}"
+
+class MongoLogTracker(models.Model):
+    class Meta:
+        managed = False
+        verbose_name = "Auditoría NoSQL"
+        verbose_name_plural = "Auditorías NoSQL"

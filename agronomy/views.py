@@ -3,6 +3,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from rest_framework import viewsets
+from rest_framework.permissions import AllowAny
 from .models import FarmField, Crop
 from .mixins import ProducerRequiredMixin
 from .tasks import sync_field_weather, analyze_crop_with_ai
@@ -88,6 +89,7 @@ class CropDeleteView(ProducerRequiredMixin, DeleteView):
 class CropViewSet(viewsets.ModelViewSet):
     queryset = Crop.objects.all().order_by('-id')
     serializer_class = CropSerializer
+    # permission_classes = [AllowAny]
 
     def perform_create(self, serializer):
         crop = serializer.save()

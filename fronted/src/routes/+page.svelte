@@ -38,13 +38,20 @@
     }
 </script>
 
-<main class="flex min-h-screen flex-col items-center bg-slate-50 p-6">
-    <div class="flex w-full max-w-3xl items-center justify-between">
-        <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight mb-8">Svelte</h1>
-        <button onclick={handleLogout}>
-            Cerrar Sesión
-        </button>
-    </div>
+<main class="min-h-screen bg-slate-50">
+    <header class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-8 py-4 shadow-sm">
+        <div>
+            <h1 class="text-2xl font-black text-slate-900 tracking-tight mb-1">Agrotech Panel</h1>
+            <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Gestor de Cultivos</p>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <a href="/crops/new" class="rounded-lg bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700 transition-colors">+ Nuevo Cultivo</a>
+            <button onclick={handleLogout} class="cursor-pointer rounded-full bg-slate-100 px-5 py-2 text-sm font-bold text-slate-700 hover:bg-red-50 hover:text-red-600 transitions-colors">
+                Cerrar Sesión
+            </button>
+        </div>
+    </header>
 
 
     <!-- <button 
@@ -74,18 +81,24 @@
         {#if data.crops.length === 0}
             <h3>No hay cultivos registrados.</h3>
         {:else}
-            <div class="grid grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {#each data.crops as crop (crop.id)}
-                    <article class="flex flex-col bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                    <article class="flex flex-col bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition-shadow">
                         <div class="bg-emerald-50 px-5 py-4 border-b border-emerald-10">
-                            <h2 class="text-lg font-bold text-emerald-900">{crop.name}</h2>
+                            <h2 class="truncate text-lg font-bold text-emerald-900">{crop.name}</h2>
                             <p class="text-xs font-medium text-emerald-600">ID Registro: #{crop.id}</p>
                         </div>
 
                         <div class="p-5 flex-1 flex flex-col justify-between">
-                            <div>
-                                <p>Fecha de Siembra</p>
-                                <p>{crop.sowing_date}</p>
+                            <div class="mb-6">
+                                <p class="mb-1 text-xs font-semibold uppercase tracking-widest text-slate-400">Fecha de Siembra</p>
+                                <p class="font-medium text-slate-800">{crop.sowing_date}</p>
+                            </div>
+
+                            <div class="flex gap-2">
+                                <a href="/crops/{crop.id}" class="flex-1 rounded-lg border border-slate-200 bg-slate-50 py-2 text-center text-sm font-bold text-slate-600 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 transitions-colors">Detalles</a>
+
+                                <a href="/crops/{crop.id}/edit" class="flex-1 rounded-lg border border-slate-200 bg-slate-50 py-2 text-center text-sm font-bold text-slate-600 hover:border-amber-200 hover:bg-amber-50 hover:text-amber-700 transitions-colors">Editar</a>
                             </div>
                         </div>
                     </article>

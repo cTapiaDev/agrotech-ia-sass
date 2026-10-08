@@ -85,6 +85,7 @@ class Command(BaseCommand):
         client = MongoClient(settings.MONGODB_URI)
         db = client[settings.MONGODB_NAME]
         collection = db['crop_analysis']
+        collection.delete_many({})
 
         for crop in created_crops:
             lat = crop.farm_field.location_lat

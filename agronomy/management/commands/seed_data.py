@@ -1,7 +1,11 @@
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+from django.conf import settings
 from agronomy.models import CustomUser, FarmField, Crop
+from agronomy.tasks import sync_field_weather, analyze_crop_with_ai
+from pymongo import MongoClient
 import random
+import requests
 from datetime import timedelta
 
 class Command(BaseCommand):
@@ -12,7 +16,7 @@ class Command(BaseCommand):
 
         self.stdout.write('Generando usuarios...')
         users_to_create = []
-        for i in range(1, 51):
+        for i in range(1, 11):
             username = f'producer_{i}'
             if not CustomUser.objects.filter(username=username).exists():
                 user = CustomUser(
@@ -31,7 +35,7 @@ class Command(BaseCommand):
         field_names = ['El Maitén', 'Los Aromos', 'La Esperanza', 'San Pedro', 'El Roble', 'Santa María', 'Las Acacias']
 
         fields_to_create = []
-        for i in range(500):
+        for i in range(20):
             name = f"{random.choice(field_prefixes)} {random.choice(field_names)} #{i + 1}"
             fields_to_create.append(FarmField(
                 owner=random.choice(producers),
@@ -61,7 +65,7 @@ class Command(BaseCommand):
         today = timezone.now().date()
         crops_to_create = []
 
-        for i in range(2500):
+        for i in range(50):
             crop_name, crop_type = random.choice(crop_catalog)
             sowing = today - timedelta(days=random.randint(10, 180))
             harvest = sowing + timedelta(days=random.randint(90, 240))
@@ -74,7 +78,43 @@ class Command(BaseCommand):
                 harvest_date=harvest
             ))
 
-        Crop.objects.bulk_create(crops_to_create, batch_size=500)
+        created_crops = Crop.objects.bulk_create(crops_to_create, batch_size=500)
+
+        self.stdout.write("Procesando peticiones a la IA y Open Meteo...")
+
+        client = MongoClient(settings.MONGODB_URI)
+        db = client[settings.MONGODB_NAME]
+        collection = db['crop_analysis']
+
+        for crop in created_crops:
+            lat = crop.farm_field.location_lat
+            lng = crop.farm_field.location_lng
+
+            weather_data = None
+            try:
+                url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lng}&current_weather=true"
+                response = requests.get(url, timeout=5)
+                if response.status_code == 200:
+                    weather_data = response.json().get('current_weather', {})
+            except Exception as e:
+                self.stdout.write(self.style.WARNING(f"Aviso: Falló Open-Meteo para ID {crop.id}"))
+
+            document = {
+                "crop_id": crop.id,
+                "crop_name": crop.name,
+                "weather": weather_data,
+                "ai_analysis": "",
+                "last_updated": timezone.now()
+            }
+
+            collection.update_one(
+                {"crop_id": crop.id},
+                {"$set": document},
+                upsert=True
+            )
+
+            sync_field_weather.delay(crop.farm_field_id)
+            
 
         self.stdout.write(self.style.SUCCESS(
             'Datos inyectados con éxito!'

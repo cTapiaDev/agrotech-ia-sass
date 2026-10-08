@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from agronomy.views import CropViewSet
+from agronomy.views import CropViewSet, CropAnalysisLogView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 router = DefaultRouter()
@@ -15,4 +15,6 @@ urlpatterns = [
     path('api/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
 
     path('api/', include(router.urls)),
+
+    path('api/weather_logs/', CropAnalysisLogView.as_view(), name='weather_logs'),
 ]

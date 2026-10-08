@@ -2,8 +2,12 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
+from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from pymongo import MongoClient
 from .models import FarmField, Crop
 from .mixins import ProducerRequiredMixin
 from .tasks import sync_field_weather, analyze_crop_with_ai
@@ -94,3 +98,15 @@ class CropViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         crop = serializer.save()
         analyze_crop_with_ai.delay(crop.id)
+
+class CropAnalysisLogView(APIView):
+    def get(self, request):
+        try:
+            client = MongoClient(settings.MONGODB_URI)
+            db = client[settings.MONGODB_NAME]
+            collection = db['weather_logs']
+
+            logs = list(collection.find({}, {'_id': 0}).sort('created_at', -1).limit(50))
+            return Response(logs)
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)

@@ -1,4 +1,8 @@
 <script lang="ts">
+    import * as XLSX from 'xlsx';
+    import jsPDF from 'jspdf';
+    import autoTable from 'jspdf-autotable';
+
     import api from '$lib/api';
     import { goto } from '$app/navigation';
     import { fly, fade, scale } from 'svelte/transition';
@@ -11,6 +15,8 @@
     // let errorMessage = $state<string | null>(null);
 
     const { data } = $props();
+
+    let isExportMenuOpen = $state(false);
 
     let crops = $state<any[]>([]);
     let isResolving = $state(true);
@@ -69,13 +75,93 @@
             toaster.add('Fallo al intentar eliminar el cultivo', 'error');
         }
     }
+
+    const getCropList = async () => {
+        const response = await data.cropsPromise;
+        return response.data || response;
+    }
+
+
+    // Exportar a CSV
+    const exportCSV = async () => {
+        const cropsList = await getCropList();
+        const headers = ['ID,Nombre,Tipo,Fecha Siembra,Fecha Cosecha,Estado'];
+        const rows = cropsList.map((crop: any) =>
+            `${crop.id},"${crop.name}","${crop.crop_type}",${crop.sowing_date},${crop.harvest_date || 'N/A'},${crop.is_active ? 'Activo' : 'Inactivo'}`
+        );
+        const csvContent = headers.concat(rows).join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'datos_cultivos.csv';
+        link.click();
+        URL.revokeObjectURL(url);
+        isExportMenuOpen = false;
+    }
+
+    // Exportar a Excel
+    const exportExcel = async () => {
+        const cropsList = await getCropList();
+
+        const worksheetData = cropsList.map((crop: any) => ({
+            'ID Parcela': crop.id,
+            'Nombre del Cultivo': crop.name,
+            'Tipo': crop.crop_type,
+            'Siembra': crop.sowing_date,
+            'Cosecha': crop.harvest_date || 'No registrada',
+            'Estado': crop.is_active ? 'Activo' : 'Inactivo'
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Cultivos");
+        XLSX.writeFile(workbook, 'cultivos.xlsx');
+        isExportMenuOpen = false;
+    }
+
+    // Exportar a PDF
+    const exportPDF = async () => {
+        const cropsList = await getCropList();
+
+        const doc = new jsPDF();
+        doc.setFontSize(16);
+        doc.text("Reporte General de Cultivos",14 ,15);
+
+        const tableData = cropsList.map((crop: any) => [
+            crop.id,
+            crop.name,
+            crop.crop_type,
+            crop.sowing_date,
+            crop.harvest_date,
+            crop.is_active ? 'Activo' : 'Inactivo'
+        ]);
+
+        autoTable(doc, {
+            head: [['ID', 'Nombre', 'Tipo', 'Fecha Siembra', 'Fecha Cosecha', 'Estado']],
+            body: tableData,
+            startY: 22,
+            styles: { fontSize: 10, cellPadding: 3 },
+            headStyles: { fillColor: [16, 185, 129] }
+        });
+
+        doc.save('reporte_pdf_cultivos.pdf');
+        isExportMenuOpen = false;
+    };
 </script>
 
 <main class="min-h-screen bg-slate-50">
     <header class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-8 py-4 shadow-sm">
-        <div>
-            <h1 class="text-2xl font-black text-slate-900 tracking-tight mb-1">Agrotech Panel</h1>
-            <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Gestor de Cultivos</p>
+        <div class="flex items-center gap-8">
+            <div>
+                <h1 class="text-2xl font-black text-slate-900 tracking-tight mb-1">Agrotech Panel</h1>
+                <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Gestor de Cultivos</p>
+            </div>
+
+            <a href="/analytics" class="flex items-center rounded-lg bg-slate-50 px-4 py-2.5 text-sm font-semibold text-slate-600 transition-all hover:bg-indigo-50 hover:text-indigo-700">Bitácora Analytics</a>
+
+
         </div>
 
         <div class="flex items-center gap-4">
@@ -193,5 +279,41 @@
             </div>
         {/if}
     </section>
+
+
+
+    <div class="fixed bottom-8 right-8 z-50 flex flex-col items-end gap-3">
+        {#if isExportMenuOpen}
+            <div class="flex flex-col gap-2">
+                <button onclick={exportCSV} class="flex cursor-pointer items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-lg ring-1 ring-slate-200 transition-transform hover:scale-105 hover:bg-slate-50">
+                    Descargar .CSV
+                </button>
+
+                <button onclick={exportExcel} class="flex cursor-pointer items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-emerald-700 shadow-lg ring-1 ring-slate-200 transition-transform hover:scale-105 hover:bg-emerald-50">
+                    Descargar Excel
+                </button>
+
+                <button onclick={exportPDF} class="flex cursor-pointer items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-red-700 shadow-lg ring-1 ring-slate-200 transition-transform hover:scale-105 hover:bg-red-50">
+                    Descargar PDF
+                </button>
+            </div>
+        {/if}
+
+        <button onclick={() => isExportMenuOpen = !isExportMenuOpen} title="Exportar Datos" class="flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-indigo-600 text-white shadow-xl transition-all hover:bg-indigo-700 hover:shadow-2xl focus:outline-none">
+            <svg
+                class="h-6 w-6 transition-transform duration-300 {isExportMenuOpen ? 'rotate-180' : ''}"
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor" 
+                stroke-width="2"
+            >
+                {#if isExportMenuOpen}
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                {:else}
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                {/if}
+            </svg>
+        </button>
+    </div>  
 
 </main>
